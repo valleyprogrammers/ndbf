@@ -175,7 +175,7 @@ export function parse<T extends BasicMessage>(
 
   remaining = remaining.trim();
 
-  const command = remaining.match(/^[^\s]+/i)?.[0];
+  const command = remaining.match(/^[^\s]+/i)![0];
   if (!command) return fail("Could not match a command");
   remaining = remaining.slice(command.length).trim();
 

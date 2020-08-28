@@ -1,6 +1,3 @@
-import { Reflection } from "../deps.ts";
-const Ref = Reflection as any;
-
 export interface IContainer {
 	add(type: Function, value?: any): void;
 	get<T>(type: Function): T;
@@ -17,9 +14,9 @@ export const metaKey = "Reflection:Container";
 
 export const Inject = <T>(type: Newable<T>): ParameterDecorator => {
 	return (target, propertyKey, parameterIndex) => {
-		const meta = Ref.getMetadata(metaKey, target) || new Map<number, Newable<T>>();
+		const meta = Reflect.getMetadata(metaKey, target) || new Map<number, Newable<T>>();
 		meta.set(parameterIndex, type);
-		Ref.defineMetadata(metaKey, meta, target);
+		Reflect.defineMetadata(metaKey, meta, target);
 	};
 }
 
@@ -41,7 +38,7 @@ export class Container implements IContainer {
 	}
 
 	resolve<T>(type: Newable<T>): T {
-		const meta = Ref.getMetadata(metaKey, type) as InjectMeta;
+		const meta = Reflect.getMetadata(metaKey, type) as InjectMeta;
 		const args = [];
 		
 		if(!meta) return new type();

@@ -1,2 +1,2 @@
-# typescript-base
-Some shitty template for typescript node
+# ndbf
+Some shitty discord bot framework
