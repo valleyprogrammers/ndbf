@@ -2,6 +2,12 @@ import { Bot } from "../index";
 import { Message } from "eris";
 import { SuccessfulParsedMessage } from "../dependencies/command-parser";
 
+export interface CommandExecutorArgs {
+	bot: Bot;
+	msg: Message;
+	args: SuccessfulParsedMessage;
+}
+
 export interface CommandExecutor {
-	execute(bot: Bot, message: Message, parsed: SuccessfulParsedMessage): void | Promise<void>;
+	execute({ bot, msg, args }: CommandExecutorArgs): void | Promise<void>;
 }

@@ -2,3 +2,5 @@ yarn.lock
 yarn-error.log
 .eslintrc.js
 src
+tsconfig.json
+00

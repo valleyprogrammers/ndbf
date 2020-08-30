@@ -6,4 +6,5 @@ export interface CommandMeta {
 	aliases?: string[];
 	permissions?: PermissionResolvable[];
 	category?: string;
+	developer?: boolean;
 }

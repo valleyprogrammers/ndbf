@@ -4,7 +4,7 @@ import {SuccessfulParsedMessage} from "../dependencies/command-parser";
 
 export class CommandUtils {
 	static findCommand(commands: Map<CommandMeta, CommandExecutor>, parsed: SuccessfulParsedMessage): CommandMeta | undefined {
-		for(let commandMeta of commands.keys()) {
+		for(const commandMeta of commands.keys()) {
 			if(commandMeta.name == parsed.command || (
 				commandMeta.aliases && 
 				commandMeta.aliases.length > 0 &&

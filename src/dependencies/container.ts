@@ -1,14 +1,15 @@
 export interface IContainer {
-	add(type: Function, value?: any): void;
-	get<T>(type: Function): T;
-	resolve<T>(type: Function): T;
+	add<T>(type: Newable<T>, value: T): void;
+	get<T>(type: Newable<T>): T;
+	resolve<T>(type: Newable<T>): T;
 }
 
 export interface Newable<T> {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	new(...args: any[]): T;
 }
 
-export type InjectMeta = Map<number, Newable<any>>;
+export type InjectMeta = Map<number, Newable<unknown>>;
 
 export const metaKey = "Reflection:Container";
 
@@ -18,23 +19,23 @@ export const Inject = <T>(type: Newable<T>): ParameterDecorator => {
 		meta.set(parameterIndex, type);
 		Reflect.defineMetadata(metaKey, meta, target);
 	};
-}
+};
 
 export class Container implements IContainer {
-	private container: Map<Newable<any>, any>;
+	private container: Map<Newable<unknown>, unknown>;
 
 	constructor() {
-		this.container = new Map<Newable<any>, any>();
+		this.container = new Map<Newable<unknown>, unknown>();
 	}
 
-	add<T>(type: Newable<T>, value?: T) {
+	add<T>(type: Newable<T>, value?: T): T | undefined {
 		this.container.set(type, value);
 		return value;
 	}
 
 	get<T>(type: Newable<T>) : T{
 		const value = this.container.get(type);
-		return value;
+		return value as T;
 	}
 
 	resolve<T>(type: Newable<T>): T {
@@ -43,7 +44,7 @@ export class Container implements IContainer {
 		
 		if(!meta) return new type();
 
-		for(let [key, val] of meta) {
+		for(const [key, val] of meta) {
 			args[key] = this.get(val);
 		}
 		
