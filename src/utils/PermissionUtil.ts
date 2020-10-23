@@ -35,6 +35,7 @@ export type PermissionResolvable =
 	| "MANAGE_EMOJIS"
 	| "READ_MESSAGES";
 
+//TODO: Fix this shit. Make a map or smth. 3am me was so dead I didnt even think to do that
 const convertPerm = (perm: PermissionResolvable) : string => {
 	switch (perm) {
 		case "CREATE_INSTANT_INVITE":
@@ -110,8 +111,9 @@ export class PermissionUtils {
 		return message.member.permission.has(convertPerm(permission));
 	}
 
-	static hasPerms(message: Message, permissions: PermissionResolvable[]): boolean {
+	static hasPerms(message: Message, permissions?: PermissionResolvable[]): boolean {
 		if(!message.member) return false;
+		if(!permissions) return true;
 		if(message.member.permission.has(convertPerm("ADMINISTRATOR"))) return true;
 
 		const userPerms = new Map<PermissionResolvable, boolean>();

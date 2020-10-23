@@ -9,7 +9,11 @@ export class CommandUtils {
 				commandMeta.aliases && 
 				commandMeta.aliases.length > 0 &&
 				commandMeta.aliases.includes(parsed.command)
-			)) return commandMeta;
+			)) {
+				//TODO: Implememnt sub-commands
+				if(!commandMeta.subCommands || commandMeta.subCommands.length <= 0) return commandMeta;
+				return commandMeta;
+			}
 		}
 	}
 }

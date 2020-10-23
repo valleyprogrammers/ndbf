@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable quotes */
 import "reflect-metadata";
-import eris, { Client, Message } from "eris";
+import eris, { Client, EmbedField, EmbedOptions, Message } from "eris";
 import { Container, Newable } from "./dependencies/container";
 import { CommandExecutor, CommandExecutorArgs } from "./structures/CommandExecutor";
 import { EventExecutor } from "./structures/EventExecutor";
@@ -8,8 +10,8 @@ import {parse, SuccessfulParsedMessage} from "./dependencies/command-parser";
 import { CommandUtils } from "./utils/CommandUtils";
 import { PermissionUtils } from "./utils/PermissionUtil";
 import { Constants } from "./Constants";
-import { Command } from "./decorators/Command";
 import { EventMeta } from "./structures/metadata/EventMetadata";
+import { Command } from "./decorators/Command";
 
 /**
  * Options for the discord client
@@ -22,11 +24,14 @@ export interface BotOptions {
 	logger?: Logger;
 	prefix: string;
 }
+
 export interface Logger {
 	warn(msg?: any): any;
 	log(msg?: any): any;
 	error(msg?: any): any;
 }
+type Dictionary<K> = {[key: string] : K};
+
 export class Bot {
 	public client: Client;
 	public container: Container;
@@ -50,7 +55,37 @@ export class Bot {
 			if(message.author.bot || !message.content.startsWith(this.options.prefix)) return;
 
 			const parsed = parse(message, this.options.prefix, {allowBots: false}) as SuccessfulParsedMessage;
-			if (parsed.success) {
+			if (parsed.success) { //TODO: Move this to a file, this is here so I know what args the function needs. Don't know how long this will be relevant, discord will probably have some way to view commands when slash commnads are released.
+				if(parsed.arguments.length > 0) {
+					const cmd = CommandUtils.findCommand(this.commands, { command: parsed.arguments[0] } as any) || { name : "Not Found", description: "Command not found!" };
+					await message.channel.createMessage({
+						embed: {
+							title: cmd.name,
+							description: cmd.description
+						}
+					});
+					return;
+				}
+
+				const helpFields: Dictionary<EmbedField> = {};
+				if(parsed.command === "help") {
+					for(const cmd of this.commands.keys()) {
+						const category = cmd.category || "default";
+						if(!helpFields[category!]) helpFields[category] = { name: category, value: "" };
+						helpFields[category!].value += `${cmd.name}\n`;
+					}
+
+					await message.channel.createMessage({
+						embed: {
+							fields: Object.values(helpFields),
+							title: "Help",
+							description: "Help message"
+						}
+					});
+
+					return;
+				}
+				
 				const command = CommandUtils.findCommand(this.commands, parsed);
 				if (!command) return;
 				
@@ -59,7 +94,6 @@ export class Bot {
 					return this.execCommand(command, message, parsed);
 
 				if (
-					command.permissions && // Check if the command has permissions set
 					message.member && // Make sure that the member object exists
 					!(message.channel.type === 1) && // Make sure it is not dms
 					PermissionUtils.hasPerms(message, command.permissions) // check that the user has the permissions
@@ -107,7 +141,7 @@ export class Bot {
 		}	
 	}
 
-	public async start() {
+	public async start() : Promise<void> {
 		return this.client.connect();
 	}
 }
@@ -121,3 +155,20 @@ export * from "./decorators/Event";
 export * from "./dependencies/command-parser";
 export * from "./dependencies/container";
 export * from "./Constants";
+
+
+@Command("test", { description: "Test Command "})
+class TestCommand implements CommandExecutor {
+	async execute({msg}: CommandExecutorArgs) {
+		await msg.channel.createMessage("Tested!");
+	}
+}
+
+const bot = new Bot("NTY4MTI3OTc2MDM4NzI3Njgz.XLdkaA.F0q29dDTAIwQ_3JZF8Q48SP6gkE", {
+	prefix: "v!",
+	commands: [TestCommand]
+});
+
+(async () => {
+	await bot.start();
+})();
