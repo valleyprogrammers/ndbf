@@ -155,20 +155,3 @@ export * from "./decorators/Event";
 export * from "./dependencies/command-parser";
 export * from "./dependencies/container";
 export * from "./Constants";
-
-
-@Command("test", { description: "Test Command "})
-class TestCommand implements CommandExecutor {
-	async execute({msg}: CommandExecutorArgs) {
-		await msg.channel.createMessage("Tested!");
-	}
-}
-
-const bot = new Bot("NTY4MTI3OTc2MDM4NzI3Njgz.XLdkaA.F0q29dDTAIwQ_3JZF8Q48SP6gkE", {
-	prefix: "v!",
-	commands: [TestCommand]
-});
-
-(async () => {
-	await bot.start();
-})();
