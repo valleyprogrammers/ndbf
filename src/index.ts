@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable quotes */
 import "reflect-metadata";
-import eris, { Client, EmbedField, EmbedOptions, Message } from "eris";
+import eris, { Client, EmbedField, Message } from "eris";
 import { Container, Newable } from "./dependencies/container";
-import { CommandExecutor, CommandExecutorArgs } from "./structures/CommandExecutor";
+import { CommandExecutor } from "./structures/CommandExecutor";
 import { EventExecutor } from "./structures/EventExecutor";
 import { CommandMeta } from "./structures/metadata/CommandMeta";
 import {parse, SuccessfulParsedMessage} from "./dependencies/command-parser";
@@ -56,19 +56,16 @@ export class Bot {
 
 			const parsed = parse(message, this.options.prefix, {allowBots: false}) as SuccessfulParsedMessage;
 			if (parsed.success) { //TODO: Move this to a file, this is here so I know what args the function needs. Don't know how long this will be relevant, discord will probably have some way to view commands when slash commnads are released.
-				if(parsed.arguments.length > 0) {
-					const cmd = CommandUtils.findCommand(this.commands, { command: parsed.arguments[0] } as any) || { name : "Not Found", description: "Command not found!" };
-					await message.channel.createMessage({
-						embed: {
-							title: cmd.name,
-							description: cmd.description
-						}
-					});
-					return;
-				}
-
-				const helpFields: Dictionary<EmbedField> = {};
 				if(parsed.command === "help") {
+					// const cmd = CommandUtils.findCommand(this.commands, { command: parsed.arguments[0] } as any) || { name : "Not Found", description: "Command not found!" };
+					// await message.channel.createMessage({
+					// 	embed: {
+					// 		title: cmd.name,
+					// 		description: cmd.description
+					// 	}
+					// });
+
+					const helpFields: Dictionary<EmbedField> = {};
 					for(const cmd of this.commands.keys()) {
 						const category = cmd.category || "default";
 						if(!helpFields[category!]) helpFields[category] = { name: category, value: "" };
@@ -95,7 +92,7 @@ export class Bot {
 
 				if (
 					message.member && // Make sure that the member object exists
-					!(message.channel.type === 1) && // Make sure it is not dms
+					message.channel.type !== 1 && // Make sure it is not dms
 					PermissionUtils.hasPerms(message, command.permissions) // check that the user has the permissions
 				) return this.execCommand(command, message, parsed);
 			}
